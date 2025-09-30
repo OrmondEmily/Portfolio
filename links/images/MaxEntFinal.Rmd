@@ -1,0 +1,179 @@
+---
+title: "Maxent Final"
+author: "Emily Ormond"
+date: "2025-09-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+print( paste(system.file(package="dismo"), "/java/maxent.jar", sep='') )
+library(dismo)
+library(raster)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(sf)
+library(dplyr)
+library(lubridate)
+library(stringr)
+"D:/fx_software/R-3.5.1/library/dismo/java/maxent.jar"
+
+# download occurrences
+## Notophthalmus viridescens is the Scientific Name for the Eastern Newt
+east_newt = gbif(genus="Notophthalmus", species = "viridescens", download=TRUE)
+
+saveRDS(east_newt,"occ_Notophthalmusviridescens")
+east_newt=readRDS("occ_Notophthalmusviridescens")
+
+
+# clean occurrences
+## removes occurrences without lat or long data, or points at 0
+east_newt_clean = subset(east_newt, (!is.na(lat))&
+                     (!is.na(lon))&
+                     (lat!=0)&
+                     lon!=0)
+## removes duplicated occurrences
+east_newt_unique = east_newt_clean[!duplicated(east_newt_clean[c("lat","lon")]),]
+east_newt_final = east_newt_unique
+
+
+
+east_newt_final <- east_newt_final %>%
+  # Replace slashes with NA (or keep first date if you prefer)
+  mutate(clean_date = str_extract(eventDate, "\\d{4}-\\d{2}-\\d{2}")) %>%
+  mutate(clean_date = ymd(clean_date)) %>%
+  filter(clean_date >= ymd("2005-01-01"))
+
+# make occurrences spatial
+coordinates(east_newt_final) <- ~ lon + lat
+myCRS1 = CRS("+init=epsg:4326")
+crs(east_newt_final) <- myCRS1
+
+## Load in Climatic varibles from WorldClim (Got from https://geodata.ucdavis.edu/climate/worldclim/1_4/grid/cur/)
+# clim_list = list.files("data/bio_10m_bil/", pattern = ".bil$", full.names = T)
+clim_list = c("data/bio_10m_bil/bio1.bil", 
+              "data/bio_10m_bil/bio5.bil", 
+              "data/bio_10m_bil/bio6.bil", 
+              "data/bio_10m_bil/bio12.bil", 
+              "data/bio_10m_bil/bio16.bil", 
+              "data/bio_10m_bil/bio17.bil")
+clim = raster::stack(clim_list)
+
+# # Crop to USA Boundaries
+usa <- ne_countries(country = "United States of America", scale = "medium", returnclass = "sf")
+clim <- crop(clim, extent(usa))
+clim <- mask(clim, usa)
+
+usa_sp <- as(usa, "Spatial")
+east_newt_final <- east_newt_final[usa_sp, ]
+
+##########STARTING DOWN HERE
+
+#define study area
+occ_buffer = buffer(east_newt_final, width = 2*10^5) 
+plot(occ_buffer, col="black")
+plot(east_newt_final, add=T, col="blue")
+clim_mask = mask(clim, occ_buffer)
+
+# look at climatic data
+plot(clim_mask[[6]], 
+     xlim = c(-140, -60), ylim = c(20, 55))
+plot(east_newt_final,add=T,col="red")
+
+
+
+#further clean data
+extracted_condition = extract(clim[[1]], east_newt_final)
+table(is.na(extracted_condition))
+east_newt_final=subset(east_newt_final, !is.na(extracted_condition))
+plot(clim[[1]])
+plot(east_newt_final,add=T, col="blue")
+
+#define study area
+occ_buffer = buffer(east_newt_final, width = 2*10^5) 
+plot(occ_buffer, col="black")
+plot(east_newt_final, add=T, col="blue")
+
+clim_mask = mask(clim, occ_buffer)
+plot(clim_mask[[1]])
+plot(east_newt_final, add=T, col="blue")
+
+# randomly select background points
+
+clim_mask = mask(clim, occ_buffer)
+
+set.seed(1)
+bg = sampleRandom(x=clim_mask,
+                  size=10000,
+                  na.rm=T,
+                  sp=T)
+plot(bg, col="black")
+plot(east_newt_final,add=T,col="blue")
+
+# extract environmental conditions
+env_bg = extract(clim,bg)
+env_occ = extract(clim, east_newt_final)
+
+env_bg = as.data.frame(env_bg)
+env_occ = as.data.frame(env_occ)
+
+
+# structure the data for maxent
+myPredictors = rbind(env_occ,env_bg)
+head(myPredictors)
+
+myResponse = c(rep(1,nrow(env_occ)),
+               rep(0,nrow(env_bg)))
+head(myResponse)
+
+model =maxent(x=myPredictors, p=myResponse)
+model
+
+ped_world = predict(model,clim)
+plot(ped_world, xlim = c(-200, -50), ylim = c(0, 100))
+
+
+# future layer predictions may be under (https://geodata.ucdavis.edu/climate/worldclim/1_4/grid/fut/ccm3_bio_10m.zip)
+
+# load in future data layers
+
+fut_clim_list = c("data/ccm3_bio_10m/ccm3_bio1.bil", 
+              "data/ccm3_bio_10m/ccm3_bio5.bil", 
+              "data/ccm3_bio_10m/ccm3_bio6.bil", 
+              "data/ccm3_bio_10m/ccm3_bio12.bil", 
+              "data/ccm3_bio_10m/ccm3_bio16.bil", 
+              "data/ccm3_bio_10m/ccm3_bio17.bil")
+fut_clim = raster::stack(fut_clim_list)
+names(fut_clim) = names(clim)
+fut_usa = predict(model, fut_clim)
+plot(fut_usa)
+
+write.csv(east_newt, "eastern_newt.csv")
+
+library(ggplot2)
+env_occ$bio1_celsius <- env_occ$bio1 / 10
+ggplot(env_occ, aes(x = bio1_celsius)) +
+  geom_histogram(binwidth = 1, fill = "red", color = "black") +
+  labs(
+    title = "Eastern Newt Occurrence by Annual Mean Temperature",
+    x = "Annual Mean Temperature (°C)",
+    y = "Number of Eastern Newt Occurrences"
+  ) 
+
+ggplot(env_occ, aes(x = bio12)) +
+  geom_histogram(binwidth = 100, fill = "blue", color = "black") +
+  labs(
+    title = "Species Occurrence by Annual Precipitation",
+    x = "Annual Precipitation (mm)",
+    y = "Number of Occurrences"
+  ) 
+
+env <- summary(env_occ)
+head(env)
+tail(env)
+```
+

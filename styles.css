@@ -99,8 +99,6 @@ footer a:hover {
     height: 300px;
     border: 15px solid #bdc667;
     border-radius: 30%;
-    
-
 }
 
 .resume {
@@ -154,4 +152,42 @@ footer a:hover {
 .course:hover {
     background-color: #BDC667;
     color: #56282d;
+}
+
+.plant-info {
+    background-color: #333;
+
+}
+
+.plant-drawings {
+    background-color: #77966d;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    padding: 1rem;
+    width: fit-content;   
+    margin: 0 auto;
+    border-radius: 30px;       
+}
+
+.plant-drawings img {
+    max-width: 175px;  
+    height: auto;
+    padding: 5px;
+    justify-content: center;
+}
+
+
+.garden-info{
+    display: flex;             
+    justify-content: center; 
+
+}
+
+.garden-info embed {
+    width: 100%;        /* fills container */
+    max-width: 900px;   /* never grows too wide */
+    height: 70vh;       /* adjusts to screen height */
+    border: none;       /* cleaner look */
 }

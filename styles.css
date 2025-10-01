@@ -1,4 +1,3 @@
-/* Global */
 body {
     margin: 5%;
     font-family: 'IBM Plex Serif', Georgia, serif;
@@ -14,10 +13,10 @@ body {
     background-color: #bdc667;
     text-align: center;
     padding: 2rem 1rem 1rem;
-    border-top-left-radius: 45px;   /* only top-left */
-    border-top-right-radius: 45px;  /* only top-right */
-    border-bottom-left-radius: 45px;   /* keep bottom straight */
-    border-bottom-right-radius: 45px;  /* keep bottom straight */
+    border-top-left-radius: 45px;   
+    border-top-right-radius: 45px;  
+    border-bottom-left-radius: 45px;   
+    border-bottom-right-radius: 45px;  
 
 }
 
@@ -85,17 +84,17 @@ footer a:hover {
 
 .profile {
     display: flex;
-    align-items: flex-start; /* aligns text and image at top */
+    align-items: flex-start; 
     gap: 1.5rem;
-    flex-wrap: wrap;         /* stacks on small screens */
+    flex-wrap: wrap;         
 }
 
 .profile p {
-    flex: 1; /* takes up remaining space */
+    flex: 1; 
 }
 
 .headshot {
-    width: 300px;       /* adjust size */
+    width: 300px;       
     height: 300px;
     border: 15px solid #bdc667;
     border-radius: 30%;
@@ -114,7 +113,7 @@ footer a:hover {
 }
 
 .garden-photo {
-    width: 70%;      /* image takes up half the container */
+    width: 70%;      
     max-width: 550px;
     height: auto;
     border: 2px solid #BDC667;
@@ -122,7 +121,7 @@ footer a:hover {
 }
 
 .garden-text {
-    flex: 1;         /* text fills the remaining space */
+    flex: 1;        
     min-width: 250px;
 }
 .course-grid {
@@ -178,7 +177,6 @@ footer a:hover {
     justify-content: center;
 }
 
-
 .garden-info{
     display: flex;             
     justify-content: center; 
@@ -186,8 +184,23 @@ footer a:hover {
 }
 
 .garden-info embed {
-    width: 100%;        /* fills container */
-    max-width: 900px;   /* never grows too wide */
-    height: 70vh;       /* adjusts to screen height */
-    border: none;       /* cleaner look */
+    width: 100%;        
+    max-width: 900px;   
+    height: 70vh;      
+    border: none;       
+}
+
+.coursework{
+    flex: 1 1 45%; 
+}
+.coursework img{
+    width: 100%;        
+    height: auto;
+}
+
+.coursework-container {
+    display: flex;            
+    flex-wrap: wrap;          
+    gap: 2rem;                
+    justify-content: center;  
 }

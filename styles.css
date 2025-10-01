@@ -1,7 +1,7 @@
 /* Global */
 body {
     margin: 5%;
-    font-family: 'Nunito', Arial, sans-serif;
+    font-family: 'IBM Plex Serif', Georgia, serif;
     line-height: 1.6;
     color: #333;
     background-color: #f2e3e5;
@@ -21,10 +21,14 @@ body {
 
 }
 
+h1, h2, h3, nav a {
+    font-family: 'Zalando Sans Expanded', 'Saira', sans-serif;
+}
+
 .header1 h1 {
     margin: 0 0 0.5rem;
     font-size: 2.2rem;
-    color: #65282d;
+    color: #56282d;
 }
 
 /* Navigation */
@@ -57,8 +61,9 @@ main {
 }
 
 section h2 {
-    color: #65282d;
+    color: #56282d;
     margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 /* Footer */
@@ -98,3 +103,55 @@ footer a:hover {
 
 }
 
+.resume {
+    display: flex;             
+    justify-content: center;
+}
+
+.garden {
+    display: flex;
+    gap: 1.5rem;            
+    flex-wrap: wrap;   
+    margin: 1.5rem 0;
+}
+
+.garden-photo {
+    width: 70%;      /* image takes up half the container */
+    max-width: 550px;
+    height: auto;
+    border: 2px solid #BDC667;
+    border-radius: 8px;
+}
+
+.garden-text {
+    flex: 1;         /* text fills the remaining space */
+    min-width: 250px;
+}
+.course-grid {
+    display:inline;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.course {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-color: #77966d;
+    border: 4px solid #BDC667;
+    border-radius: 12px;
+    text-align: center;
+    font-family: 'Zalando Sans Expanded', 'Saira', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #fafafa;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.course:hover {
+    background-color: #BDC667;
+    color: #56282d;
+}
